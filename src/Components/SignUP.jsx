@@ -6,11 +6,11 @@ import {doc,setDoc} from "firebase/firestore"
 
 function SignUp() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    confirmPassword:""
+    confirmPassword: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,18 +22,26 @@ function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setLoading(true);
     try {
-    
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         formData.email,
-        formData.password,
+        formData.password
       );
       const user = userCredential.user;
 
-     
       await setDoc(doc(db, "users", user.uid), {
         name: formData.name,
         email: formData.email,
@@ -48,12 +56,14 @@ function SignUp() {
     }
   };
   return (
-    <div className="signup-container">
+        <div className="signup-container">
       <div className="signup-card">
         <h2>Create Account</h2>
-        <p className="subtitle">Start your journey with Enterprise Knowledge Copilot</p>
+        <p className="subtitle">
+          Start your journey with Enterprise Knowledge Copilot
+        </p>
 
-        {error && <p style={{ color: 'red', fontSize: '14px' }}>{error}</p>}
+        {error && <p className="error-message">{error}</p>}
 
         <form className="signup-form" onSubmit={handleSubmit}>
           <input
@@ -80,14 +90,32 @@ function SignUp() {
             onChange={handleChange}
             required
           />
+          <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+          />
+
+          
+          {formData.confirmPassword && (
+            <p className={`password-match ${formData.password === formData.confirmPassword ? "match" : "no-match"}`}>
+              {formData.password === formData.confirmPassword
+                ? "Passwords match"
+                : "Passwords do not match"}
+            </p>
+          )}
 
           <button type="submit" className="signup-btn" disabled={loading}>
-            {loading ? 'Creating Account...' : 'Sign Up'}
+            {loading ? "Creating Account..." : "Sign Up"}
           </button>
         </form>
 
         <p className="footer-text">
-          Already have an account? <span onClick={() => navigate('/signin')}>Sign In</span>
+          Already have an account?{" "}
+          <span onClick={() => navigate("/signin")}>Sign In</span>
         </p>
       </div>
     </div>
