@@ -23,7 +23,7 @@ function SignIn() {
 
     try {
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      navigate("/");
+      navigate("/chat");
     } catch (err) {
       // Firebase error codes mapped to friendly messages
       switch (err.code) {
